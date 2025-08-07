@@ -1,7 +1,7 @@
 {
   "name": "tsaga",
   "version": "0.1.0",
-  "description": "Type-safe wrapper for event emitters built for implementing orchestrated sagas",
+  "description": "Type-safe wrapper for event emitters built for implementing choreographed sagas",
   "license": "MIT",
   "author": "Your Name",
   "engines": {

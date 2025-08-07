@@ -1,10 +1,3 @@
-api.dummy.getPost.useQuery();
-
-sagas.createBookingSaga.emit({
-    bookingRef: ...,
-    ...
-});
-
 /**
  * TODO:
  * [ ] Caller factory should only inherit the type definitions and the base EventEmitter class
@@ -32,16 +25,15 @@ sagas.createBookingSaga.emit({
  * 
  */
 
-
-import { api } from "@/trpc/server";
 import EventEmitter from "events";
-import type z from "zod";
+import z from "zod";
 
 
 // TODO: Need a factory for this so we can pass the same instance of EventEmitter()
 // This factory will be whats used in the SagaRouter class
 // TODO: does each saga need a unique name?
 // const array of names for the saga?
+
 /**
  * Encapsulates an EventEmitter to provide strong typing on the Input/Output
  */
@@ -55,7 +47,7 @@ class Saga<
      */
     readonly schema: TSagaInputSchema;
 
-    readonly emitter: EventEmitter;
+    private readonly emitter: EventEmitter;
 
     constructor({
         emitter,
@@ -70,56 +62,62 @@ class Saga<
         this.emitter = emitter;
     }
 
-    // Notify the listeners of this saga of an event
-    private emit({ input }: { input: TSagaInput }) {
-        // TODO: loop through listeners and pass the input to them
+    /**
+     * Runs the execute function of this saga with the provided input
+     */
+    emit({ input }: { input: TSagaInput }) {
     }
 }
 
 // TODO: push/pull
 
 // TODO: this needs to be a static class
-class SagaBuilder {
+class SagaRouter {
     readonly emitter: EventEmitter;
 
     // TODO: this needs to pass through the available routes to the builder for access
     // TODO: we also need to expose the type of this class so we can pass it into any functions
     // that we define outside to hide away the creation logic of each saga
-    readonly sagas: any;
+    readonly callers: Record<string, Saga<any, any, any>> = {};
 
     constructor(emitter: EventEmitter) {
         this.emitter = emitter;
     }
 
     // TODO: return the Saga class
-    createSaga<T>(): T {
+    createSaga<T>(params: T): T {
         return {} as any;
+    }
+
+    // TODO: strong typing for this
+    // We need to return
+    createRouter(routes: Record<string, Saga<any, any, any>>) {
+        for (const [name, saga] of Object.entries(routes)) {
+            this.callers[name] = saga;
+        }
     }
 }
 
 
 
 const emitter = new EventEmitter();
-const router = new SagaBuilder(emitter);
+const sagas = new SagaRouter(emitter);
 
-interface CreateBookingSaga {
-    bookingId: number;
-    name: string;
-}
-
-const createBookingSaga = router.createSaga<CreateBookingSaga>({
+const createBookingSaga = sagas.createSaga({
     schema: z.object({ ...}),
-    execute: ({  }) => {
-        router.createFlightItinerary.emit("")
+    emit: ({ }) => {
+        sagas.callers.createFlightItinerary.emit({ input: "" })
     }
 });
 
-router.addRoutes({
+// TODO: this should return a typed object that defines the possible routes that can be called on a saga.
+// We can pass this SagaRouter to the creation of other Sagas
+// TODO: maybe we expose a version of this SagaRouter to the createRouter e.g.
+// const sagaRouter = sagas.createRouter(router => ({ ... } )); 
+const sagaRouter = sagas.createRouter({
     createBooking: createBookingSaga
 })
 
-
-api
 
 export {
     builder,
