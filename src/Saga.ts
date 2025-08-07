@@ -56,7 +56,7 @@ class Saga<
     }: {
         emitter: EventEmitter,
         schema: TSagaInputSchema,
-        emit: (input: TSagaInput) => TSagaOutput
+        emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput
     }) {
         this.schema = schema;
         this.emitter = emitter;
@@ -65,14 +65,15 @@ class Saga<
     /**
      * Runs the execute function of this saga with the provided input
      */
-    emit({ input }: { input: TSagaInput }) {
+    emit({ input }: { input: z.infer<TSagaInputSchema> }): TSagaOutput {
+        return {} as any;
     }
 }
 
 // TODO: push/pull
 
 // TODO: this needs to be a static class
-class SagaRouter {
+class SagaBuilder {
     readonly emitter: EventEmitter;
 
     // TODO: this needs to pass through the available routes to the builder for access
@@ -85,7 +86,12 @@ class SagaRouter {
     }
 
     // TODO: return the Saga class
-    createSaga<T>(params: T): T {
+    createSaga<
+        TSagaInput,
+        TSagaOutput,
+        TSagaInputSchema extends z.ZodSchema<TSagaInput>
+    >(params: { schema: TSagaInputSchema, emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput }): Saga<TSagaInput, TSagaOutput, TSagaInputSchema> {
+        // TODO: return an actual Saga...
         return {} as any;
     }
 
@@ -98,14 +104,14 @@ class SagaRouter {
     }
 }
 
-
-
 const emitter = new EventEmitter();
-const sagas = new SagaRouter(emitter);
+const sagas = new SagaBuilder(emitter);
 
 const createBookingSaga = sagas.createSaga({
-    schema: z.object({ ...}),
-    emit: ({ }) => {
+    schema: z.object({
+        flightId: z.string(),
+    }),
+    emit: ({ input }) => {
         sagas.callers.createFlightItinerary.emit({ input: "" })
     }
 });
@@ -117,6 +123,8 @@ const createBookingSaga = sagas.createSaga({
 const sagaRouter = sagas.createRouter({
     createBooking: createBookingSaga
 })
+
+type SagaRouter = typeof sagaRouter;
 
 
 export {
