@@ -1,4 +1,7 @@
 /**
+ * Unanswered technical questions:
+ * [ ] Why do we need the TOutput for the Saga
+ * 
  * TODO:
  * [ ] Caller factory should only inherit the type definitions and the base EventEmitter class
  *      - We probably don't need references to the callback function definitions for each EventEmitter
@@ -70,7 +73,7 @@ class Saga<
     }
 }
 
-// TODO: push/pull
+// TODO: bind the EventEmitter
 
 // TODO: this needs to be a static class
 class SagaBuilder {
@@ -97,10 +100,28 @@ class SagaBuilder {
 
     // TODO: strong typing for this
     // We need to return
-    createRouter(routes: Record<string, Saga<any, any, any>>) {
+    createRouter(routes: Record<string, Saga<any, any, any>>): SagaRouter {
+        // TODO: we need to bind the EventEmitter
         for (const [name, saga] of Object.entries(routes)) {
+            // TODO: the 'emit' function needs to be bound to the EventEmitter class
+            // TODO: we should only expose the 'emit' function
             this.callers[name] = saga;
         }
+    }
+}
+
+interface SagaCaller<TSagaInput, TSagaOutput> {
+    emit: ({ input }: { input: TSagaInput }) => TSagaOutput;
+}
+
+class SagaRouter<
+    RouterRecord extends { [key: string]: SagaCaller<any, any> }
+// How do we get the const values of the Sagas?
+> {
+    readonly routes: RouterRecord;
+
+    constructor(routes: RouterRecord) {
+        this.routes = routes;
     }
 }
 
@@ -120,15 +141,15 @@ const createBookingSaga = sagas.createSaga({
 // We can pass this SagaRouter to the creation of other Sagas
 // TODO: maybe we expose a version of this SagaRouter to the createRouter e.g.
 // const sagaRouter = sagas.createRouter(router => ({ ... } )); 
-const sagaRouter = sagas.createRouter({
+// const sagaRouter = sagas.createRouter({
+const sagaRouter = new SagaRouter({
     createBooking: createBookingSaga
-})
+});
 
-type SagaRouter = typeof sagaRouter;
-
+// type SagaRouter = typeof sagaRouter;
+sagaRouter.routes.createBooking.emit({ input: { flightId: "123" } });
 
 export {
-    builder,
     type Saga
 }
 
