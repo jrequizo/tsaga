@@ -12,11 +12,21 @@
         "types": [
             "node",
             "vitest/globals"
-        ]
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        }
     },
     "include": [
         "src",
         "vitest.config.ts",
-        "vite.config.ts"
+        "vite.config.ts",
+        "test/index.ts"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }
