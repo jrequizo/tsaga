@@ -83,6 +83,8 @@ const createBookingSaga = builder.createSaga({
     }),
     // TODO: we can't really expose router here as it's return type is defined in the 'createRouter' 
     // function and we don't store a ref of what that is internally that is passed around.
+    // We only mutate and force the type inference of SagaBuilder when we can explicitly
+    // define the return type in a function and pass the new reference of it around.
     emit: ({ input, router }) => {
         builder.callers.createFlightItinerary.emit({ input: "" });
 
