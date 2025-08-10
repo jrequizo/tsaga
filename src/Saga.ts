@@ -114,15 +114,21 @@ interface SagaCaller<TSagaInput, TSagaOutput> {
     emit: ({ input }: { input: TSagaInput }) => TSagaOutput;
 }
 
-class SagaRouter<
-    RouterRecord extends { [key: string]: SagaCaller<any, any> }
-// How do we get the const values of the Sagas?
-> {
-    readonly routes: RouterRecord;
+type RouterRecordEmitters<TRouterRecord extends { [key: string]: SagaCaller<any, any> }> = {
+    [key in keyof TRouterRecord]: TRouterRecord[key] extends SagaCaller<any, any> ? { emit: TRouterRecord[key]["emit"] } : never
+}
 
-    constructor(routes: RouterRecord) {
-        this.routes = routes;
+function createSagaRouter<
+    TRouterRecord extends { [key: string]: SagaCaller<any, any> }
+>(routes: TRouterRecord): RouterRecordEmitters<TRouterRecord> {
+    const result: TRouterRecord = {} as any;
+
+    for (const key of Object.keys(routes) as (keyof TRouterRecord)[]) {
+        // put each route directly on the instance
+        result[key] = routes[key];
     }
+
+    return result as any;
 }
 
 const emitter = new EventEmitter();
@@ -132,8 +138,14 @@ const createBookingSaga = sagas.createSaga({
     schema: z.object({
         flightId: z.string(),
     }),
-    emit: ({ input }) => {
-        sagas.callers.createFlightItinerary.emit({ input: "" })
+    emit: ({ input, router }) => {
+        sagas.callers.createFlightItinerary.emit({ input: "" });
+
+        // ... call AWS
+        // .. insert to DB
+
+        router.createBooking.emit("");
+        router.createNotification.emit();
     }
 });
 
@@ -142,12 +154,19 @@ const createBookingSaga = sagas.createSaga({
 // TODO: maybe we expose a version of this SagaRouter to the createRouter e.g.
 // const sagaRouter = sagas.createRouter(router => ({ ... } )); 
 // const sagaRouter = sagas.createRouter({
-const sagaRouter = new SagaRouter({
-    createBooking: createBookingSaga
+const sagaRouter = createSagaRouter({
+    createBooking: createBookingSaga,
+    createItinerary: createBookingSaga
 });
 
-// type SagaRouter = typeof sagaRouter;
-sagaRouter.routes.createBooking.emit({ input: { flightId: "123" } });
+sagaRouter.createBooking.emit({ input: { flightId: "123" } });
+sagaRouter.createItinerary.emit({ input: { flightId: "123" } });
+
+
+// // type SagaRouter = typeof sagaRouter;
+// sagaRouter.routes.createBooking.emit({ input: { flightId: "123" } });
+
+// sagaRouter.routes.createBooking.emit("")
 
 export {
     type Saga
