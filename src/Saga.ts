@@ -33,6 +33,8 @@ class Saga<
      * Runs the execute function of this saga with the provided input
      */
     emit({ input }: { input: z.infer<TSagaInputSchema> }): TSagaOutput {
+        // TODO: actually bind some sort of execute function...??
+        // WTF is happening here?
         return {} as any;
     }
 }
