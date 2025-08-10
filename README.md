@@ -2,7 +2,7 @@
 
 Type-safe wrapper for event emitters built for implementing choreographed Sagas.
 
-#TODO COUNT
+# TODO COUNT
 There are `9` TODO comments remaining in the codebase.
 
 ## Example
