@@ -48,3 +48,4 @@ sagaRouter.createBooking.emit({ input: { flightId: "123" } });
 - [ ] Context support e.g. passing ongoing database transaction
 - [ ] First-class support for zod@v4
 - [ ] Managed state for result collection and aggregation e.g. run a query at the completion of a set of Sagas
+- [ ] Support for cancellation of Sagas
