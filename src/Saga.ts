@@ -81,6 +81,8 @@ const createBookingSaga = builder.createSaga({
     schema: z.object({
         flightId: z.string(),
     }),
+    // TODO: we can't really expose router here as it's return type is defined in the 'createRouter' 
+    // function and we don't store a ref of what that is internally that is passed around.
     emit: ({ input, router }) => {
         builder.callers.createFlightItinerary.emit({ input: "" });
 
