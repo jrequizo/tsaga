@@ -14,22 +14,14 @@ type RouterRecordEmitters<TRouterRecord extends { [key: string]: SagaCaller<any,
     [key in keyof TRouterRecord]: TRouterRecord[key] extends SagaCaller<any, any> ? { emit: TRouterRecord[key]["emit"] } : never
 }
 
-
+/**
+ * 
+ */
 class SagaBuilder {
     readonly emitter: EventEmitter;
 
     constructor(emitter: EventEmitter) {
         this.emitter = emitter;
-    }
-
-    // TODO: return the Saga class
-    createSaga<
-        TSagaInput,
-        TSagaOutput,
-        TSagaInputSchema extends z.ZodSchema<TSagaInput>
-    >(params: { schema: TSagaInputSchema, emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput }): Saga<TSagaInput, TSagaOutput, TSagaInputSchema> {
-        // TODO: return an actual Saga...
-        return {} as any;
     }
 
     /**

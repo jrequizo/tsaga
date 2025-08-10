@@ -1,8 +1,8 @@
 import z from "zod/v4";
-import { builder, sagaRouter } from "./core";
+import { createSaga } from "../../src/createSaga";
 
 
-export const createResourceSaga = builder.createSaga({
+export const createResourceSaga = createSaga({
     schema: z.object({
         resourceId: z.string(),
     }),
