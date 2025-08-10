@@ -30,6 +30,7 @@
 
 import EventEmitter from "events";
 import z from "zod";
+import SagaBuilder from "./SagaBuilder";
 
 
 // TODO: Need a factory for this so we can pass the same instance of EventEmitter()
@@ -73,73 +74,15 @@ class Saga<
     }
 }
 
-// TODO: bind the EventEmitter
-
-// TODO: this needs to be a static class
-class SagaBuilder {
-    readonly emitter: EventEmitter;
-
-    // TODO: this needs to pass through the available routes to the builder for access
-    // TODO: we also need to expose the type of this class so we can pass it into any functions
-    // that we define outside to hide away the creation logic of each saga
-    readonly callers: Record<string, Saga<any, any, any>> = {};
-
-    constructor(emitter: EventEmitter) {
-        this.emitter = emitter;
-    }
-
-    // TODO: return the Saga class
-    createSaga<
-        TSagaInput,
-        TSagaOutput,
-        TSagaInputSchema extends z.ZodSchema<TSagaInput>
-    >(params: { schema: TSagaInputSchema, emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput }): Saga<TSagaInput, TSagaOutput, TSagaInputSchema> {
-        // TODO: return an actual Saga...
-        return {} as any;
-    }
-
-    // TODO: strong typing for this
-    // We need to return
-    createRouter(routes: Record<string, Saga<any, any, any>>): SagaRouter {
-        // TODO: we need to bind the EventEmitter
-        for (const [name, saga] of Object.entries(routes)) {
-            // TODO: the 'emit' function needs to be bound to the EventEmitter class
-            // TODO: we should only expose the 'emit' function
-            this.callers[name] = saga;
-        }
-    }
-}
-
-interface SagaCaller<TSagaInput, TSagaOutput> {
-    emit: ({ input }: { input: TSagaInput }) => TSagaOutput;
-}
-
-type RouterRecordEmitters<TRouterRecord extends { [key: string]: SagaCaller<any, any> }> = {
-    [key in keyof TRouterRecord]: TRouterRecord[key] extends SagaCaller<any, any> ? { emit: TRouterRecord[key]["emit"] } : never
-}
-
-function createSagaRouter<
-    TRouterRecord extends { [key: string]: SagaCaller<any, any> }
->(routes: TRouterRecord): RouterRecordEmitters<TRouterRecord> {
-    const result: TRouterRecord = {} as any;
-
-    for (const key of Object.keys(routes) as (keyof TRouterRecord)[]) {
-        // put each route directly on the instance
-        result[key] = routes[key];
-    }
-
-    return result as any;
-}
-
 const emitter = new EventEmitter();
-const sagas = new SagaBuilder(emitter);
+const builder = new SagaBuilder(emitter);
 
-const createBookingSaga = sagas.createSaga({
+const createBookingSaga = builder.createSaga({
     schema: z.object({
         flightId: z.string(),
     }),
     emit: ({ input, router }) => {
-        sagas.callers.createFlightItinerary.emit({ input: "" });
+        builder.callers.createFlightItinerary.emit({ input: "" });
 
         // ... call AWS
         // .. insert to DB
@@ -154,7 +97,7 @@ const createBookingSaga = sagas.createSaga({
 // TODO: maybe we expose a version of this SagaRouter to the createRouter e.g.
 // const sagaRouter = sagas.createRouter(router => ({ ... } )); 
 // const sagaRouter = sagas.createRouter({
-const sagaRouter = createSagaRouter({
+const sagaRouter = builder.createRouter({
     createBooking: createBookingSaga,
     createItinerary: createBookingSaga
 });
