@@ -5,7 +5,7 @@
   "license": "MIT",
   "author": "Your Name",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "files": [
     "dist"
