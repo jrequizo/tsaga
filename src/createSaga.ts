@@ -11,5 +11,6 @@ export function createSaga<
     TSagaInputSchema extends z.ZodSchema<TSagaInput>
 >(params: { schema: TSagaInputSchema, emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput }): Saga<TSagaInput, TSagaOutput, TSagaInputSchema> {
     // TODO: return an actual Saga...
-    return {} as any;
+    const { schema, emit } = params;
+    return new Saga({ schema, emit });
 }
