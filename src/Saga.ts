@@ -1,4 +1,3 @@
-import EventEmitter from "events";
 import z from "zod";
 
 /**
@@ -14,29 +13,24 @@ class Saga<
      */
     readonly schema: TSagaInputSchema;
 
-    private readonly emitter: EventEmitter;
-
     /**
      * Runs the execute function of this saga with the provided input
      */
     readonly emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput;
 
     constructor({
-        emitter,
         schema,
         emit
     }: {
-        emitter: EventEmitter,
         schema: TSagaInputSchema,
         emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput
     }) {
         this.schema = schema;
-        this.emitter = emitter;
         // TODO: we possibly wanna bind this with a try/catch and structure the rollback runner around it
         this.emit = emit;
     }
 }
 
 export {
-    type Saga
+    Saga
 }
