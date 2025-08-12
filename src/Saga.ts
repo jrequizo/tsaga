@@ -1,4 +1,4 @@
-import z from "zod";
+import z from "zod/v4";
 
 /**
  * Encapsulates an EventEmitter to provide strong typing on the Input/Output
