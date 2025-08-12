@@ -16,6 +16,11 @@ class Saga<
 
     private readonly emitter: EventEmitter;
 
+    /**
+     * Runs the execute function of this saga with the provided input
+     */
+    readonly emit: ({ input }: { input: z.infer<TSagaInputSchema> }) => TSagaOutput;
+
     constructor({
         emitter,
         schema,
@@ -27,17 +32,11 @@ class Saga<
     }) {
         this.schema = schema;
         this.emitter = emitter;
-    }
-
-    /**
-     * Runs the execute function of this saga with the provided input
-     */
-    emit({ input }: { input: z.infer<TSagaInputSchema> }): TSagaOutput {
-        // TODO: actually bind some sort of execute function...??
-        // WTF is happening here?
-        return {} as any;
+        // TODO: we possibly wanna bind this with a try/catch and structure the rollback runner around it
+        this.emit = emit;
     }
 }
+
 export {
     type Saga
 }
